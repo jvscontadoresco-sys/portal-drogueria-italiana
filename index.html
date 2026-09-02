@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Droguería Italiana S&D — Portal de Sistemas</title>
+<meta name="description" content="Acceso unificado a los sistemas internos de Droguería Italiana S&D.">
+<meta name="theme-color" content="#000084">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23000084'/><text x='50' y='68' font-family='Arial' font-size='52' font-weight='bold' fill='white' text-anchor='middle'>DI</text></svg>">
+
+<style>
+/* ============================================================
+   PALETA CORPORATIVA — Droguería Italiana S&D
+   No modificar sin volver a medir contraste (WCAG AA).
+   ============================================================ */
+:root{
+  --azul:#000084;
+  --azul-oscuro:#00005C;
+  --azul-medio:#3A3FA8;
+  --azul-suave:#EEF0FA;
+  --azul-borde:#D2D6EE;
+
+  --verde:#009246;   /* franja tricolor */
+  --rojo:#CE2B37;    /* franja tricolor */
+
+  --verde-txt:#007134;
+  --ambar-txt:#94590B;
+
+  --tinta:#1A1A2E;
+  --tinta-suave:#5A5A78;
+  --papel:#FFFFFF;
+  --fondo:#F4F5FB;
+
+  --radio:16px;
+  --radio-sm:10px;
+  --sombra:0 1px 2px rgba(0,0,132,.06), 0 8px 24px rgba(0,0,132,.08);
+  --sombra-alta:0 4px 12px rgba(0,0,132,.10), 0 20px 48px rgba(0,0,132,.16);
+  --trans:.28s cubic-bezier(.4,0,.2,1);
+
+  --h-encabezado:76px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:Arial, "Helvetica Neue", Helvetica, sans-serif;
+  background:var(--fondo);
+  color:var(--tinta);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.55;
+}
+
+/* ============================================================
+   1. PANTALLA DE CARGA
+   Cubre todo hasta que la página está lista. Se desvanece y se
+   retira del DOM para no interceptar clics.
+   ============================================================ */
+#carga{
+  position:fixed; inset:0; z-index:1000;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:26px;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #1B1F8C 0%, transparent 60%),
+    linear-gradient(160deg, #000084 0%, #00005C 100%);
+  color:#fff;
+  transition:opacity .5s ease, visibility .5s ease;
+}
+#carga.oculto{opacity:0; visibility:hidden}
+
+.carga-marca{
+  height:120px; width:auto;
+  animation:aparecer .8s cubic-bezier(.2,.8,.2,1) both, flotar 3.2s ease-in-out 1s infinite;
+}
+.carga-titulo{
+  font-size:13px; letter-spacing:.34em; text-transform:uppercase;
+  font-weight:bold; opacity:.92;
+  animation:aparecer .8s ease .25s both;
+}
+.carga-sub{
+  font-size:12.5px; letter-spacing:.05em; color:#C7CBEE;
+  animation:aparecer .8s ease .4s both;
+}
+
+/* Barra tricolor que avanza: es también la franja de la marca */
+.barra{
+  width:230px; height:6px; border-radius:99px;
+  background:rgba(0,0,0,.26); overflow:hidden;
+  animation:aparecer .8s ease .5s both;
+}
+.barra i{
+  display:block; height:100%; width:0%;
+  background:linear-gradient(90deg,var(--verde) 0 33%, #fff 33% 66%, var(--rojo) 66% 100%);
+  background-size:230px 100%;
+  animation:avanzar 1.5s cubic-bezier(.3,.8,.3,1) forwards;
+}
+@keyframes avanzar{ to{width:100%} }
+@keyframes aparecer{ from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none} }
+@keyframes flotar{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+
+/* ============================================================
+   2. ENCABEZADO
+   position:fixed a propósito: se compacta al bajar y, si
+   estuviera en el flujo, ese cambio de altura movería el
+   contenido y produciría parpadeo.
+   ============================================================ */
+#encabezado{
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  height:var(--h-encabezado);
+  display:flex; align-items:center; gap:14px;
+  padding:0 clamp(16px,4vw,40px);
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--azul-borde);
+  transition:height var(--trans), box-shadow var(--trans);
+}
+#encabezado.compacto{ height:56px; box-shadow:0 4px 20px rgba(0,0,132,.10) }
+
+/* El encabezado lleva el león solo y el nombre en texto real, no el
+   logotipo dibujado: a 40 px de alto las letras del vector quedarían
+   de 8 px y se convertirían en una mancha. El león solo aguanta el
+   tamaño; el nombre se lee siempre porque es texto. */
+.enc-marca{ color:var(--azul); display:flex; align-items:center; height:40px; transition:height var(--trans) }
+#encabezado.compacto .enc-marca{ height:30px }
+.enc-marca svg{ display:block }
+
+.enc-texto{ display:flex; flex-direction:column; line-height:1.25 }
+.enc-texto b{
+  font-size:15px; color:var(--azul); letter-spacing:.04em;
+  transition:font-size var(--trans);
+}
+#encabezado.compacto .enc-texto b{ font-size:13.5px }
+.enc-texto b em{ font-style:normal; font-size:.72em; letter-spacing:.02em; vertical-align:1px }
+.enc-texto span{ font-size:11px; color:var(--tinta-suave); letter-spacing:.02em }
+#encabezado.compacto .enc-texto span{ display:none }
+
+.enc-espacio{ flex:1 }
+.enc-estado{
+  display:flex; align-items:center; gap:8px;
+  font-size:12px; color:var(--tinta-suave);
+  padding:6px 12px; border:1px solid var(--azul-borde);
+  border-radius:99px; background:#fff;
+}
+.punto{ width:8px; height:8px; border-radius:50%; background:var(--verde-txt); box-shadow:0 0 0 3px rgba(0,113,52,.15) }
+
+/* ============================================================
+   3. PORTADA
+   ============================================================ */
+#portada{ padding:calc(var(--h-encabezado) + 48px) clamp(16px,4vw,40px) 60px; max-width:1120px; margin:0 auto }
+
+.saludo{ margin-bottom:36px; animation:aparecer .6s ease both }
+.saludo .etiqueta{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:11px; font-weight:bold; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--azul-medio); background:var(--azul-suave);
+  border:1px solid var(--azul-borde); border-radius:99px; padding:6px 14px; margin-bottom:16px;
+}
+.saludo h1{ font-size:clamp(26px,4.4vw,40px); color:var(--azul); letter-spacing:-.01em; line-height:1.18 }
+.saludo p{ margin-top:10px; color:var(--tinta-suave); max-width:60ch; font-size:15px }
+
+.tricolor{ display:flex; height:5px; width:180px; border-radius:99px; overflow:hidden; margin-top:20px; border:1px solid var(--azul-borde) }
+.tricolor i{ flex:1 }
+.tricolor i:nth-child(1){ background:var(--verde) }
+.tricolor i:nth-child(2){ background:#fff }
+.tricolor i:nth-child(3){ background:var(--rojo) }
+
+.rejilla{ display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:22px }
+
+.tarjeta{
+  position:relative; overflow:hidden;
+  background:var(--papel); border:1px solid var(--azul-borde);
+  border-radius:var(--radio); padding:26px 26px 22px;
+  box-shadow:var(--sombra);
+  transition:transform var(--trans), box-shadow var(--trans), border-color var(--trans);
+  animation:aparecer .6s ease both;
+}
+.tarjeta:nth-child(1){ animation-delay:.08s }
+.tarjeta:nth-child(2){ animation-delay:.16s }
+.tarjeta:hover{ transform:translateY(-4px); box-shadow:var(--sombra-alta); border-color:var(--azul-medio) }
+.tarjeta::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:4px;
+  background:linear-gradient(90deg,var(--verde) 0 33%, #E6E8F4 33% 66%, var(--rojo) 66%);
+  opacity:0; transition:opacity var(--trans);
+}
+.tarjeta:hover::before{ opacity:1 }
+
+.t-icono{
+  width:52px; height:52px; border-radius:14px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--azul-suave); color:var(--azul); border:1px solid var(--azul-borde);
+  margin-bottom:16px;
+}
+.t-icono svg{ width:26px; height:26px }
+.tarjeta h2{ font-size:19px; color:var(--azul); letter-spacing:-.01em }
+.tarjeta p{ margin-top:8px; color:var(--tinta-suave); font-size:14px; min-height:44px }
+
+.chips{ display:flex; flex-wrap:wrap; gap:7px; margin:16px 0 20px }
+.chip{
+  font-size:11px; color:var(--azul-medio); background:var(--azul-suave);
+  border:1px solid var(--azul-borde); border-radius:99px; padding:4px 10px;
+}
+
+.acciones{ display:flex; gap:10px; flex-wrap:wrap }
+.btn{
+  font-family:inherit; font-size:14px; font-weight:bold; cursor:pointer;
+  border-radius:var(--radio-sm); padding:11px 18px;
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid transparent; transition:all var(--trans); text-decoration:none;
+}
+.btn svg{ width:16px; height:16px }
+.btn-p{ background:var(--azul); color:#fff }
+.btn-p:hover{ background:var(--azul-oscuro); transform:translateY(-1px) }
+.btn-s{ background:#fff; color:var(--azul); border-color:var(--azul-borde) }
+.btn-s:hover{ background:var(--azul-suave); border-color:var(--azul-medio) }
+.btn:focus-visible{ outline:3px solid var(--azul-medio); outline-offset:2px }
+
+#pie{
+  max-width:1120px; margin:0 auto; padding:28px clamp(16px,4vw,40px) 48px;
+  border-top:1px solid var(--azul-borde); color:var(--tinta-suave); font-size:12.5px;
+  display:flex; justify-content:space-between; align-items:flex-end; gap:18px; flex-wrap:wrap;
+}
+#pie b{ color:var(--azul) }
+.pie-marca{ display:flex; flex-direction:column; gap:8px }
+.pie-marca svg{ display:block }
+.pie-marca span{ font-size:12px; color:var(--tinta-suave) }
+
+/* ============================================================
+   4. VISOR — muestra un sistema dentro del mismo entorno
+   ============================================================ */
+#visor{ position:fixed; inset:0; z-index:200; background:var(--fondo); display:none; flex-direction:column }
+#visor.activo{ display:flex }
+.visor-cuerpo{
+  flex:1; position:relative; background:var(--fondo);
+  display:flex; align-items:center; justify-content:center;
+}
+.telon{
+  position:absolute; text-align:center; color:var(--azul-borde);
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+}
+.telon span{ font-size:13px; color:var(--tinta-suave); letter-spacing:.02em }
+#marco{ position:relative; width:100%; height:100%; border:0; background:transparent }
+
+/* Aviso que aparece si Google bloquea el empotrado */
+/* Banda inferior, no capa que cubre: si alguna vez la detección se
+   equivoca, un aviso de más no debe tapar un sistema que sí cargó. */
+#aviso{
+  position:absolute; left:0; right:0; bottom:0;
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  padding:16px 20px; background:var(--papel);
+  border-top:3px solid var(--azul);
+  box-shadow:0 -8px 30px rgba(0,0,132,.14);
+  transform:translateY(115%); transition:transform .4s cubic-bezier(.4,0,.2,1);
+}
+#aviso.visible{ transform:none }
+#aviso .texto{ flex:1; min-width:240px }
+#aviso h3{ color:var(--azul); font-size:15px }
+#aviso p{ color:var(--tinta-suave); font-size:13px }
+#aviso .cerrar{
+  background:none; border:0; cursor:pointer; font-family:inherit;
+  color:var(--tinta-suave); font-size:22px; line-height:1; padding:6px 10px;
+}
+
+@media (max-width:640px){
+  #pie{ flex-direction:column; align-items:flex-start }
+  /* El nombre no debe partirse en dos renglones dentro del encabezado */
+  .enc-texto b{ font-size:13px; white-space:nowrap }
+  .enc-marca{ height:34px }
+  #aviso{ padding:14px }
+  #aviso .btn{ width:100% ; justify-content:center }
+}
+@media (prefers-reduced-motion:reduce){
+  *{ animation-duration:.01ms !important; transition-duration:.01ms !important }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     LOGO VECTORIAL — definido una sola vez y reutilizado con <use>.
+     Usa currentColor: se ve blanco sobre azul y azul sobre blanco.
+     Para cambiar la marca, reemplace los trazos de estos <symbol>.
+     ============================================================ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="sim" viewBox="97 3 155 153">
+    <g transform="translate(0,267) scale(0.1,-0.1)" fill="currentColor">
+      <path d="M1244 2544 c-20 -71 -13 -126 26 -187 16 -25 24 -44 17 -42 -99 32 -220 65 -225 61 -23 -23 77 -144 158 -191 l45 -25 -127 6 c-91 5 -128 4 -128 -4 0 -38 99 -106 245 -168 13 -6 -16 -10 -89 -14 l-110 -5 35 -34 c36 -37 114 -75 173 -86 55 -11 43 -25 -21 -25 l-58 -1 42 -38 c25 -23 75 -51 125 -70 46 -18 96 -40 112 -48 29 -15 29 -15 23 14 -3 15 -15 78 -27 138 -28 144 -24 265 14 383 l27 83 -54 62 c-72 82 -140 177 -156 216 -19 44 -28 39 -47 -25z M2136 2568 c-16 -39 -89 -139 -159 -220 l-50 -58 21 -67 c76 -241 42 -412 -95 -482 -31 -16 -40 -14 -17 4 18 14 18 14 0 15 -33 0 -86 64 -86 104 l0 35 25 -24 c13 -14 30 -25 38 -25 8 0 21 -7 28 -16 12 -15 15 -14 31 6 23 28 23 43 1 36 -29 -9 -50 10 -37 31 17 27 63 41 75 23 8 -13 13 -11 29 9 27 31 26 36 -15 61 -19 12 -35 26 -35 31 0 5 -16 19 -35 31 -31 21 -34 26 -29 58 5 28 1 39 -15 54 -21 19 -21 19 -16 -15 4 -27 4 -30 -4 -13 -12 28 -49 54 -76 54 -17 0 -16 -3 10 -25 36 -29 24 -34 -12 -5 -30 24 -71 26 -99 5 -17 -12 -17 -14 -2 -15 22 0 72 -19 66 -25 -2 -2 -21 0 -42 6 -48 13 -81 1 -127 -48 -24 -26 -28 -34 -14 -28 11 4 49 9 85 11 l65 3 -64 -8 c-73 -9 -93 -27 -111 -100 -13 -50 -8 -61 17 -39 23 20 78 48 95 48 7 0 -7 -12 -32 -26 -85 -48 -98 -85 -69 -189 l11 -40 18 48 c21 55 61 105 104 130 31 19 31 19 -5 -15 -71 -65 -111 -156 -101 -230 5 -41 22 -52 22 -15 1 12 8 36 16 52 8 17 12 22 10 13 -30 -107 -30 -133 -3 -179 34 -58 34 -81 -3 -149 -47 -88 -35 -134 37 -138 25 -2 31 1 27 13 -4 11 -2 13 9 9 25 -9 41 32 27 67 -11 26 -10 34 14 69 14 22 26 44 26 50 0 14 42 2 52 -14 24 -36 -33 -194 -78 -215 -26 -11 -52 -56 -40 -68 4 -4 16 -2 26 5 12 7 20 8 20 2 0 -14 37 -12 43 3 4 9 6 9 6 0 1 -8 15 -13 35 -13 l33 0 7 63 c4 46 14 73 36 105 16 23 30 51 30 61 0 29 33 51 76 51 60 0 68 -10 69 -80 l0 -61 -62 -57 c-35 -32 -63 -64 -63 -70 0 -16 37 -15 43 1 4 9 6 9 6 0 1 -9 18 -13 51 -13 45 0 50 2 50 22 0 12 18 38 40 59 33 31 39 43 34 64 -3 13 -1 38 4 55 9 26 8 32 -11 45 -18 13 -19 15 -4 15 62 0 187 -117 187 -175 0 -8 -11 -20 -24 -25 -21 -8 -46 -37 -46 -53 0 -3 41 -5 91 -6 84 -1 91 0 84 16 -3 10 -9 43 -12 73 -4 39 -13 63 -29 80 -13 14 -30 45 -39 69 -8 24 -31 65 -51 93 l-37 49 60 -6 c65 -8 95 2 113 36 15 27 6 49 -41 106 -67 82 -44 143 56 143 23 0 35 5 35 14 0 7 9 25 20 39 26 33 26 34 -12 29 -44 -7 -79 -30 -122 -81 -46 -55 -48 -94 -6 -146 34 -42 37 -66 14 -89 -30 -31 -115 -15 -167 31 -20 18 -59 35 -105 47 -82 21 -87 27 -34 45 81 28 180 82 196 106 l16 25 -62 0 c-74 0 -68 8 28 38 66 21 154 79 154 103 0 5 -45 9 -100 9 -106 0 -123 8 -62 29 92 32 222 122 222 153 0 8 -41 9 -132 4 l-133 -6 55 30 c30 17 69 44 86 61 31 30 80 116 71 125 -2 3 -57 -11 -121 -30 -112 -33 -135 -34 -99 -5 43 37 60 168 28 228 -19 39 -22 38 -39 -1z m-404 -890 c20 -19 24 -27 12 -20 -28 15 -74 76 -74 99 1 11 6 5 15 -15 8 -19 29 -48 47 -64z m-72 -76 c12 -13 20 -25 17 -28 -7 -8 -76 87 -87 122 -7 19 -16 34 -21 34 -6 0 -7 5 -3 12 4 7 20 -15 40 -53 18 -35 42 -74 54 -87z"/>
+    </g>
+  </symbol>
+  <symbol id="com" viewBox="0 0 420 300">
+    <g transform="translate(0,267) scale(0.1,-0.1)" fill="currentColor">
+      <path d="M1244 2544 c-20 -71 -13 -126 26 -187 16 -25 24 -44 17 -42 -99 32 -220 65 -225 61 -23 -23 77 -144 158 -191 l45 -25 -127 6 c-91 5 -128 4 -128 -4 0 -38 99 -106 245 -168 13 -6 -16 -10 -89 -14 l-110 -5 35 -34 c36 -37 114 -75 173 -86 55 -11 43 -25 -21 -25 l-58 -1 42 -38 c25 -23 75 -51 125 -70 46 -18 96 -40 112 -48 29 -15 29 -15 23 14 -3 15 -15 78 -27 138 -28 144 -24 265 14 383 l27 83 -54 62 c-72 82 -140 177 -156 216 -19 44 -28 39 -47 -25z M2136 2568 c-16 -39 -89 -139 -159 -220 l-50 -58 21 -67 c76 -241 42 -412 -95 -482 -31 -16 -40 -14 -17 4 18 14 18 14 0 15 -33 0 -86 64 -86 104 l0 35 25 -24 c13 -14 30 -25 38 -25 8 0 21 -7 28 -16 12 -15 15 -14 31 6 23 28 23 43 1 36 -29 -9 -50 10 -37 31 17 27 63 41 75 23 8 -13 13 -11 29 9 27 31 26 36 -15 61 -19 12 -35 26 -35 31 0 5 -16 19 -35 31 -31 21 -34 26 -29 58 5 28 1 39 -15 54 -21 19 -21 19 -16 -15 4 -27 4 -30 -4 -13 -12 28 -49 54 -76 54 -17 0 -16 -3 10 -25 36 -29 24 -34 -12 -5 -30 24 -71 26 -99 5 -17 -12 -17 -14 -2 -15 22 0 72 -19 66 -25 -2 -2 -21 0 -42 6 -48 13 -81 1 -127 -48 -24 -26 -28 -34 -14 -28 11 4 49 9 85 11 l65 3 -64 -8 c-73 -9 -93 -27 -111 -100 -13 -50 -8 -61 17 -39 23 20 78 48 95 48 7 0 -7 -12 -32 -26 -85 -48 -98 -85 -69 -189 l11 -40 18 48 c21 55 61 105 104 130 31 19 31 19 -5 -15 -71 -65 -111 -156 -101 -230 5 -41 22 -52 22 -15 1 12 8 36 16 52 8 17 12 22 10 13 -30 -107 -30 -133 -3 -179 34 -58 34 -81 -3 -149 -47 -88 -35 -134 37 -138 25 -2 31 1 27 13 -4 11 -2 13 9 9 25 -9 41 32 27 67 -11 26 -10 34 14 69 14 22 26 44 26 50 0 14 42 2 52 -14 24 -36 -33 -194 -78 -215 -26 -11 -52 -56 -40 -68 4 -4 16 -2 26 5 12 7 20 8 20 2 0 -14 37 -12 43 3 4 9 6 9 6 0 1 -8 15 -13 35 -13 l33 0 7 63 c4 46 14 73 36 105 16 23 30 51 30 61 0 29 33 51 76 51 60 0 68 -10 69 -80 l0 -61 -62 -57 c-35 -32 -63 -64 -63 -70 0 -16 37 -15 43 1 4 9 6 9 6 0 1 -9 18 -13 51 -13 45 0 50 2 50 22 0 12 18 38 40 59 33 31 39 43 34 64 -3 13 -1 38 4 55 9 26 8 32 -11 45 -18 13 -19 15 -4 15 62 0 187 -117 187 -175 0 -8 -11 -20 -24 -25 -21 -8 -46 -37 -46 -53 0 -3 41 -5 91 -6 84 -1 91 0 84 16 -3 10 -9 43 -12 73 -4 39 -13 63 -29 80 -13 14 -30 45 -39 69 -8 24 -31 65 -51 93 l-37 49 60 -6 c65 -8 95 2 113 36 15 27 6 49 -41 106 -67 82 -44 143 56 143 23 0 35 5 35 14 0 7 9 25 20 39 26 33 26 34 -12 29 -44 -7 -79 -30 -122 -81 -46 -55 -48 -94 -6 -146 34 -42 37 -66 14 -89 -30 -31 -115 -15 -167 31 -20 18 -59 35 -105 47 -82 21 -87 27 -34 45 81 28 180 82 196 106 l16 25 -62 0 c-74 0 -68 8 28 38 66 21 154 79 154 103 0 5 -45 9 -100 9 -106 0 -123 8 -62 29 92 32 222 122 222 153 0 8 -41 9 -132 4 l-133 -6 55 30 c30 17 69 44 86 61 31 30 80 116 71 125 -2 3 -57 -11 -121 -30 -112 -33 -135 -34 -99 -5 43 37 60 168 28 228 -19 39 -22 38 -39 -1z m-404 -890 c20 -19 24 -27 12 -20 -28 15 -74 76 -74 99 1 11 6 5 15 -15 8 -19 29 -48 47 -64z m-72 -76 c12 -13 20 -25 17 -28 -7 -8 -76 87 -87 122 -7 19 -16 34 -21 34 -6 0 -7 5 -3 12 4 7 20 -15 40 -53 18 -35 42 -74 54 -87z M2745 1130 c-8 -13 12 -40 29 -40 7 0 23 11 36 25 l23 25 -41 0 c-22 0 -44 -5 -47 -10z M670 900 l0 -150 88 0 c137 0 172 31 172 152 0 110 -48 148 -185 148 l-75 0 0 -150z m180 68 c27 -29 28 -106 1 -139 -14 -18 -29 -23 -67 -23 l-49 -1 -3 93 -3 92 50 0 c39 0 55 -5 71 -22z M970 901 l0 -151 30 0 c29 0 30 1 30 50 l0 50 34 0 c31 0 38 -5 63 -50 26 -46 31 -50 66 -50 28 0 36 3 31 13 -4 6 -18 29 -32 51 l-24 39 26 21 c52 43 54 112 2 150 -22 17 -45 22 -127 24 l-99 4 0 -151z m194 67 c21 -34 -4 -53 -70 -53 l-59 0 -3 38 -3 38 62 -3 c46 -2 65 -8 73 -20z M1310 1023 c-52 -46 -62 -150 -23 -226 41 -80 197 -70 240 14 18 34 16 144 -2 179 -34 65 -158 84 -215 33z m140 -41 c37 -30 40 -131 4 -166 -22 -23 -80 -20 -104 4 -33 33 -29 132 6 159 33 26 65 27 94 3z M1610 1023 c-36 -33 -54 -97 -44 -158 14 -88 53 -121 138 -118 28 1 70 2 94 3 l43 1 -3 87 -3 87 -70 0 c-69 0 -70 0 -73 -27 -3 -27 -1 -28 37 -28 34 0 41 -3 41 -19 0 -49 -81 -70 -120 -31 -50 50 -12 180 52 180 29 0 68 -26 68 -46 0 -9 11 -14 30 -14 33 0 40 23 20 61 -30 55 -158 68 -210 22z M1880 940 c0 -151 31 -200 125 -200 94 0 125 49 125 200 l0 110 -30 0 -30 0 0 -103 c0 -125 -12 -150 -68 -145 -51 4 -62 31 -62 151 l0 97 -30 0 -30 0 0 -110z M2179 1033 c0 -10 -1 -76 -2 -148 l-1 -130 122 -3 122 -3 0 26 c0 25 0 25 -90 25 l-90 0 0 35 0 35 76 0 75 0 -3 28 c-3 26 -5 27 -75 30 l-73 3 0 29 0 30 90 0 90 0 0 30 0 30 -120 0 c-107 0 -120 -2 -121 -17z M2460 900 l0 -151 32 3 c32 3 32 4 29 51 l-3 47 36 0 c31 0 38 -5 63 -50 26 -46 31 -50 66 -50 l37 0 -30 53 -30 53 31 23 c27 20 30 27 27 73 -4 76 -31 92 -159 96 l-99 4 0 -152z m194 68 c21 -34 -4 -53 -70 -53 -62 0 -77 16 -60 61 9 22 115 15 130 -8z M2767 1044 c-4 -4 -7 -72 -7 -151 l0 -143 35 0 36 0 -3 148 -3 147 -25 3 c-14 2 -29 0 -33 -4z M2967 1043 c-4 -6 -56 -133 -114 -280 -4 -9 6 -13 30 -13 30 0 37 4 46 30 10 29 12 30 74 30 62 0 65 -1 77 -30 10 -25 18 -30 46 -30 l34 0 -17 43 c-104 265 -97 252 -136 255 -19 2 -37 -1 -40 -5z m67 -150 c7 -21 4 -23 -28 -23 -41 0 -42 3 -20 56 l16 38 13 -24 c7 -14 16 -35 19 -47z M70 365 l0 -285 60 0 60 0 0 285 0 285 -60 0 -60 0 0 -285z M244 636 c-3 -8 -4 -31 -2 -52 l3 -39 93 -3 92 -3 0 -229 0 -230 60 0 60 0 0 230 0 230 95 0 95 0 0 55 0 55 -245 0 c-201 0 -247 -3 -251 -14z M891 632 c-5 -10 -49 -117 -96 -238 -48 -120 -96 -241 -106 -267 l-19 -48 66 3 65 3 22 55 22 55 121 3 121 3 23 -61 22 -60 65 0 c58 0 64 2 59 18 -4 9 -54 137 -113 285 l-106 267 -68 0 c-56 0 -70 -3 -78 -18z m118 -237 c17 -44 31 -83 31 -87 0 -5 -34 -8 -76 -8 -68 0 -75 2 -70 18 41 107 70 172 76 165 4 -4 21 -44 39 -88z M1315 631 c-3 -11 -3 -139 0 -283 l6 -263 214 -3 215 -2 0 50 0 50 -155 0 -155 0 -2 233 -3 232 -57 3 c-49 3 -57 0 -63 -17z M1810 365 l0 -285 60 0 60 0 -2 283 -3 282 -57 3 -58 3 0 -286z M2203 638 c-7 -13 -153 -376 -198 -495 l-24 -63 63 0 63 0 26 60 26 60 114 0 c127 0 124 2 151 -73 l18 -47 64 0 c35 0 64 2 64 5 0 11 -214 541 -223 553 -6 7 -34 12 -73 12 -39 0 -66 -5 -71 -12z m116 -245 c17 -45 31 -85 31 -88 0 -3 -34 -5 -75 -5 -41 0 -75 2 -75 5 0 19 74 185 80 178 4 -4 22 -45 39 -90z M2625 637 c-3 -7 -4 -134 -3 -282 l3 -270 58 -3 57 -3 0 191 c0 104 3 190 8 190 4 0 54 -86 112 -190 l105 -189 73 -1 72 0 0 285 0 286 -57 -3 -58 -3 -5 -193 c-5 -183 -6 -192 -21 -165 -9 15 -58 103 -109 196 l-94 167 -68 0 c-46 0 -70 -4 -73 -13z M3381 628 c-5 -13 -54 -137 -110 -277 -56 -140 -101 -258 -101 -262 0 -5 27 -9 61 -9 l60 0 27 60 26 61 119 -3 119 -3 22 -55 22 -55 63 -3 c77 -4 83 -37 -52 303 l-104 260 -71 3 c-67 3 -73 1 -81 -20z m120 -225 c19 -49 35 -91 37 -95 2 -5 -30 -8 -72 -8 -53 0 -76 4 -76 12 0 18 64 178 71 178 3 0 21 -39 40 -87z M3791 181 c-13 -23 5 -48 38 -53 27 -3 42 -28 17 -28 -9 0 -25 5 -36 12 -24 15 -37 4 -20 -17 16 -20 74 -19 91 1 17 21 1 48 -32 52 -33 5 -46 20 -26 28 10 3 24 1 32 -6 20 -17 32 -5 15 15 -18 21 -67 19 -79 -4z M3920 185 c-6 -8 -9 -19 -5 -24 3 -6 1 -19 -4 -29 -17 -32 7 -54 54 -50 44 4 50 9 42 39 -4 13 -10 18 -17 14 -9 -6 -9 -2 0 14 21 41 -40 73 -70 36z m50 -15 c0 -5 -7 -10 -16 -10 -8 0 -12 5 -9 10 3 6 10 10 16 10 5 0 9 -4 9 -10z m-10 -60 c0 -5 -7 -10 -15 -10 -8 0 -15 5 -15 10 0 6 7 10 15 10 8 0 15 -4 15 -10z M4034 186 c-3 -7 -4 -33 -2 -57 3 -42 5 -44 36 -47 62 -6 97 62 54 101 -23 21 -81 22 -88 3z m64 -15 c23 -14 11 -65 -15 -69 -21 -3 -23 1 -23 37 0 41 10 50 38 32z"/>
+    </g>
+    <rect x="10" y="272" width="133" height="20" rx="3" fill="#009246"/>
+    <rect x="144" y="273" width="132" height="18" fill="#FFFFFF" stroke="currentColor" stroke-width="2"/>
+    <rect x="277" y="272" width="133" height="20" rx="3" fill="#CE2B37"/>
+  </symbol>
+</svg>
+
+<!-- ===================== PANTALLA DE CARGA ===================== -->
+<div id="carga">
+  <svg class="carga-marca" viewBox="0 0 155 153"><use href="#sim"/></svg>
+  <div class="carga-titulo">Droguería Italiana S&amp;D</div>
+  <div class="barra"><i></i></div>
+  <div class="carga-sub">Cargando portal de sistemas…</div>
+</div>
+
+<!-- ======================= ENCABEZADO ========================== -->
+<header id="encabezado">
+  <a class="enc-marca" href="#" onclick="volverPortada(event)" aria-label="Inicio">
+    <svg viewBox="0 0 155 153" style="height:100%;width:auto"><use href="#sim"/></svg>
+  </a>
+  <div class="enc-texto"><b>DROGUERÍA ITALIANA <em>S&amp;D</em></b><span>Portal de sistemas</span></div>
+  <div class="enc-espacio"></div>
+  <div class="enc-estado"><span class="punto"></span> 2 sistemas activos</div>
+</header>
+
+<!-- ========================= PORTADA =========================== -->
+<main id="portada">
+  <section class="saludo">
+    <div class="etiqueta">Entorno interno</div>
+    <h1>Todos los sistemas de la droguería,<br>en un solo lugar.</h1>
+    <p>Seleccione el sistema que necesita.</p>
+    <div class="tricolor"><i></i><i></i><i></i></div>
+  </section>
+
+  <section class="rejilla">
+
+    <!-- ---------- SISTEMA 1 ---------- -->
+    <article class="tarjeta">
+      <div class="t-icono">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 1.9"/>
+        </svg>
+      </div>
+      <h2>Turnos y Nómina</h2>
+      <p>Programación de turnos por sede, control de horas y liquidación de nómina del personal.</p>
+      <div class="chips"><span class="chip">Turnos</span><span class="chip">ITA1 · ITA2 · ITA3</span><span class="chip">Nómina</span></div>
+      <div class="acciones">
+        <button class="btn btn-p" onclick="abrirSistema('turnos')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          Abrir sistema
+        </button>
+      </div>
+    </article>
+
+    <!-- ---------- SISTEMA 2 ---------- -->
+    <article class="tarjeta">
+      <div class="t-icono">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/><path d="m15 15 1.6 1.6L20 13.2"/>
+        </svg>
+      </div>
+      <h2>Conciliación de Recaudo Electrónico</h2>
+      <p>Cruce de recaudos por datáfono y medios electrónicos contra los movimientos registrados.</p>
+      <div class="chips"><span class="chip">Conciliación</span><span class="chip">Datáfonos</span><span class="chip">Reportes</span></div>
+      <div class="acciones">
+        <button class="btn btn-p" onclick="abrirSistema('recaudo')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          Abrir sistema
+        </button>
+      </div>
+    </article>
+
+  </section>
+</main>
+
+<footer id="pie">
+  <div class="pie-marca">
+    <!-- Aquí sí cabe el logotipo completo: hay ancho suficiente para que
+         las letras del vector se lean. -->
+    <!-- Se dimensiona por ANCHO: el logotipo es mucho más ancho que alto,
+         y fijarle la altura lo dejaba de 100 px de ancho, ilegible. -->
+    <svg viewBox="0 0 420 300" style="width:188px;height:auto;color:var(--azul)"><use href="#com"/></svg>
+    <span>Portal interno de sistemas</span>
+  </div>
+  <div>Desarrollado por JVS Asesoría Empresarial, Contable y Financiera</div>
+</footer>
+
+<!-- ========================== VISOR ============================ -->
+<div id="visor" role="dialog" aria-modal="true" aria-label="Sistema abierto">
+  <div class="visor-cuerpo">
+    <div class="telon"><svg viewBox="0 0 155 153" style="height:88px;width:auto"><use href="#sim"/></svg><span id="telon-txt">Abriendo el sistema…</span></div>
+    <iframe id="marco" title="Sistema" src="about:blank"></iframe>
+    <div id="aviso">
+      <svg viewBox="0 0 155 153" style="height:44px;width:auto;color:var(--azul)"><use href="#sim"/></svg>
+      <div class="texto">
+        <h3>Este sistema todavía debe abrirse en su propia pestaña</h3>
+        <p>Google no permite mostrarlo aquí adentro hasta que se habilite el permiso en su proyecto de Apps Script.</p>
+      </div>
+      <a class="btn btn-p" id="aviso-ext" target="_blank" rel="noopener">Abrir aparte</a>
+      <button class="btn btn-s" onclick="cerrarVisor()">Volver al portal</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CATÁLOGO DE SISTEMAS
+   Para agregar un sistema nuevo: añada una entrada aquí y
+   duplique una tarjeta en la portada con su clave.
+   ============================================================ */
+const SISTEMAS = {
+  turnos:{
+    nombre:"Turnos y Nómina",
+    url:"https://script.google.com/macros/s/AKfycbyeJWNwmLr6rLRYhbVvq8mP_37kdeA9PHFemNMiJ253fg9HRFQPjiL27kSBKbmT5Grm/exec"
+  },
+  recaudo:{
+    nombre:"Conciliación de Recaudo Electrónico",
+    url:"https://script.google.com/macros/s/AKfycbxCycsBuXbp3MR4q93Oq01hJdUfvoHLVVH7AJqgYvEr7LWakeQfod6Gg5SjCVd3OXs/exec"
+  }
+};
+
+let temporizador = null;
+
+function abrirSistema(clave){
+  const s = SISTEMAS[clave];
+  if(!s) return;
+  document.getElementById("aviso-ext").href = s.url;
+  document.getElementById("aviso").classList.remove("visible");
+  document.getElementById("telon-txt").textContent = "Abriendo el sistema…";
+
+  const marco = document.getElementById("marco");
+  marco.src = s.url;
+  document.getElementById("visor").classList.add("activo");
+  document.body.style.overflow = "hidden";
+
+  /* Detectar si Google bloqueó el empotrado.
+     No sirve esperar el evento "load": cuando el navegador rechaza la
+     página por X-Frame-Options el "load" se dispara igual, solo que el
+     marco se queda en about:blank. Lo que sí distingue los dos casos es
+     el acceso al documento interno: si se puede leer, seguimos en
+     about:blank (bloqueado); si lanza error de origen cruzado, es que
+     la página real de Google sí entró. */
+  clearTimeout(temporizador);
+  temporizador = setTimeout(() => {
+    let bloqueado = false;
+    try{
+      /* Apps Script sirve la interfaz dentro de un marco anidado propio.
+         Si cargó, el marco tiene al menos un hijo; si Google rechazó el
+         empotrado, quedó en about:blank y el conteo es cero. Es lo único
+         legible desde afuera: contentDocument da null en ambos casos. */
+      bloqueado = marco.contentWindow.length === 0;
+    }catch(e){ bloqueado = false; }
+    document.getElementById("aviso").classList.toggle("visible", bloqueado);
+    document.getElementById("telon-txt").textContent =
+      bloqueado ? "No se puede mostrar aquí adentro" : "Abriendo el sistema…";
+  }, 4000);
+}
+
+function cerrarVisor(){
+  clearTimeout(temporizador);
+  document.getElementById("visor").classList.remove("activo");
+  document.getElementById("marco").src = "about:blank";
+  document.body.style.overflow = "";
+}
+
+function volverPortada(e){ e.preventDefault(); cerrarVisor(); window.scrollTo({top:0,behavior:"smooth"}); }
+
+document.addEventListener("keydown", e => { if(e.key === "Escape") cerrarVisor(); });
+
+/* Encabezado compacto al bajar */
+addEventListener("scroll", () => {
+  document.getElementById("encabezado").classList.toggle("compacto", scrollY > 40);
+}, {passive:true});
+
+/* Cierre de la pantalla de carga: espera a que la página esté lista,
+   pero deja un mínimo visible para que no parpadee. */
+/* El botón "Portal" dentro de cada sistema devuelve el navegador a esta
+   página. En ese caso la pantalla de carga sobra: ya se vio al entrar.
+   El regreso se reconoce por el #volver de la dirección. */
+const REGRESO = location.hash === "#volver";
+const INICIO = Date.now();
+addEventListener("load", () => {
+  const espera = REGRESO ? 0 : Math.max(0, 1600 - (Date.now() - INICIO));
+  setTimeout(() => {
+    const c = document.getElementById("carga");
+    if(REGRESO) c.style.transition = "none";
+    c.classList.add("oculto");
+    setTimeout(() => c.remove(), 600);
+  }, espera);
+});
+</script>
+</body>
+</html>
